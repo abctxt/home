@@ -1,0 +1,48 @@
+name: Continuous Integration (CI)
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-dotnet@v5
+        with:
+          cache: true
+          cache-dependency-path: "**/packages.lock.json"
+
+      - name: Run 'dotnet build'
+        run: dotnet build -c Release -v minimal
+
+      - name: Run 'dotnet test'
+        run: dotnet test --no-build --project tests/Home.Tests/Home.Tests.csproj -c Release -v minimal
+
+  frontend:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: src/home-frontend/package-lock.json
+
+      - name: Prepare frontend config
+        run: cp config/~frontend.toml config/frontend.toml
+
+      - name: Install frontend dependencies
+        working-directory: src/home-frontend
+        run: npm ci
+
+      - name: Build frontend
+        working-directory: src/home-frontend
+        run: npm run build

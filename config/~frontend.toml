@@ -1,0 +1,9 @@
+[DevServer]
+Open = false
+Port = 4111
+Host = "localhost"
+Cert = ""
+PrivKey = ""
+
+[Backend]
+Url = "http://localhost:5111"
